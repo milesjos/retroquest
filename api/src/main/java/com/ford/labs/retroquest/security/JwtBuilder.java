@@ -34,10 +34,10 @@ public class JwtBuilder {
         this.jwtSecret = jwtSecret;
     }
 
-    public String buildJwt(String teamId) {
+    public String buildJwt(String subject) {
         return Jwts.builder()
                 .setExpiration(Date.from(Instant.now().plusSeconds(172800)))
-                .setSubject(teamId)
+                .setSubject(subject)
                 .setIssuer("RetroQuest")
                 .signWith(SignatureAlgorithm.HS512, jwtSecret.getBytes())
                 .compact();

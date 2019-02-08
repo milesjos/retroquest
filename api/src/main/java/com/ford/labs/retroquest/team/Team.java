@@ -18,13 +18,17 @@
 package com.ford.labs.retroquest.team;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.ford.labs.retroquest.user.UserTeam;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.domain.Persistable;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import java.time.LocalDate;
+import java.util.Set;
 
 @Data
 @Entity
@@ -47,6 +51,9 @@ public class Team implements Persistable<String> {
 
     @JsonIgnore
     private LocalDate lastLoginDate;
+
+    @OneToMany(mappedBy = "team", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<UserTeam> userTeams;
 
     Team(String uri, String name, String password) {
         this.uri = uri;
