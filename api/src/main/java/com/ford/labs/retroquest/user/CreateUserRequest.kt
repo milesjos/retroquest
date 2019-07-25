@@ -18,8 +18,10 @@
 package com.ford.labs.retroquest.user
 
 import com.ford.labs.retroquest.team.validation.PasswordConstraint
+import com.ford.labs.retroquest.user.validation.UserNameConstraint
 
 data class CreateUserRequest(
+        @UserNameConstraint
         val userName: String = "",
 
         @PasswordConstraint

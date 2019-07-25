@@ -15,27 +15,26 @@
  * limitations under the License.
  */
 
-package com.ford.labs.retroquest.user
+package com.ford.labs.retroquest.user.validation
 
 import com.ford.labs.retroquest.exception.UserNameTakenException
+import com.ford.labs.retroquest.user.UserRepository
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.security.crypto.password.PasswordEncoder
-import org.springframework.stereotype.Service
+import javax.validation.ConstraintValidator
+import javax.validation.ConstraintValidatorContext
 
-@Service
-open class UserService {
+class UserNameValidator : ConstraintValidator<UserNameConstraint, String> {
 
     @Autowired
     private lateinit var userRepository: UserRepository
 
-    @Autowired
-    private lateinit var passwordEncoder: PasswordEncoder
+    override fun initialize(constraintAnnotation: UserNameConstraint?) {
 
-    open fun createUser(user: User): User {
-        user.password = passwordEncoder.encode(user.password)
-        when {
-            userRepository.findByUserName(user.userName) != null -> throw UserNameTakenException("This username has been taken. Please try another one.")
-            else -> return userRepository.save(user)
-        }
     }
+
+    override fun isValid(userName: String?, context: ConstraintValidatorContext?): Boolean {
+
+        return true
+    }
+
 }

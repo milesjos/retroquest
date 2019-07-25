@@ -17,10 +17,10 @@
 
 package com.ford.labs.retroquest.user
 
+import com.ford.labs.retroquest.exception.UserNameTakenException
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.AdditionalAnswers.returnsFirstArg
 import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.mockito.Mockito.`when`
@@ -59,5 +59,31 @@ class UserServiceTest {
 
         assertEquals(expectedUser, actualUser)
         verify(userRepository).save(user)
+    }
+
+    @Test(expected = UserNameTakenException::class)
+    fun `should throw UserNameTakenException given user name has been used`() {
+        val user1 = User(
+                userName = "User1",
+                password = "Password1"
+        )
+
+        val user2 = User(
+                userName = "User1",
+                password = "Password1"
+        )
+
+        val expectedUser = User(
+                id = 1,
+                userName = "User1",
+                password = "encrypted-password"
+        )
+
+        `when`(passwordEncoder.encode("Password1")).thenReturn("encrypted-password")
+        `when`(userRepository.save(any<User>())).thenReturn(expectedUser)
+        `when`(userRepository.findByUserName("User1")).thenReturn(null, user1)
+
+        userService.createUser(user1)
+        userService.createUser(user2)
     }
 }

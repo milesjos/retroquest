@@ -15,12 +15,9 @@
  * limitations under the License.
  */
 
-package com.ford.labs.retroquest.user
+package com.ford.labs.retroquest.exception
 
-import org.springframework.data.jpa.repository.JpaRepository
-import org.springframework.stereotype.Repository
+import org.springframework.messaging.support.ErrorMessage
 
-@Repository
-interface UserRepository : JpaRepository<User, Long> {
-    fun findByUserName(userName: String): User?
+class UserNameTakenException(override val message: String?) : RuntimeException(message) {
 }

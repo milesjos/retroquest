@@ -22,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import java.lang.Exception
 import java.net.URISyntaxException
 import javax.transaction.Transactional
 import javax.validation.Valid
@@ -37,12 +38,16 @@ open class UserController {
 
     @PostMapping("/user")
     @Transactional(rollbackOn = [URISyntaxException::class])
-    open fun createUser(@RequestBody @Valid request: CreateUserRequest): ResponseEntity<String> {
-        val user = userService.createUser(request.toUser())
+    open fun createUser(@RequestBody @Valid request: CreateUserRequest): ResponseEntity<String?> {
+        return try {
+            val user = userService.createUser(request.toUser())
 
-        val jwt = jwtBuilder.buildJwt(user.userName)
+            val jwt = jwtBuilder.buildJwt(user.userName)
 
-        return ResponseEntity(jwt, HttpStatus.CREATED)
+            ResponseEntity(jwt, HttpStatus.CREATED)
+        } catch (exception: Exception) {
+            ResponseEntity(exception.message, HttpStatus.BAD_REQUEST)
+        }
     }
 }
 

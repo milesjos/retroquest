@@ -20,10 +20,13 @@ package com.ford.labs.retroquest.api
 import com.ford.labs.retroquest.user.UserRepository
 import junit.framework.Assert.assertEquals
 import junit.framework.Assert.assertNotNull
+import org.hamcrest.CoreMatchers.containsString
 import org.junit.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType.APPLICATION_JSON
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
 class UserApiTest : ControllerTest() {
     private val VALID_PASSWORD = "Passw0rd"
@@ -32,14 +35,12 @@ class UserApiTest : ControllerTest() {
     private lateinit var userRepository: UserRepository
 
     @Test
-    @Throws(Exception::class)
-    fun canCreateTeamWithValidTeamNameAndPassword() {
+    fun `can create user with valid username and password`() {
         val teamJsonBody = """{ "userName" : "BeachBums", "password" : "$VALID_PASSWORD"}"""
 
         val mvcResult = mockMvc.perform(post("/api/user")
                 .contentType(APPLICATION_JSON)
                 .content(teamJsonBody)).andReturn()
-
 
         val savedUser = userRepository.findAll()[0]
 
@@ -47,5 +48,32 @@ class UserApiTest : ControllerTest() {
         assertEquals("BeachBums", savedUser.userName)
         assertEquals(60, savedUser.password.length.toLong())
         assertNotNull(mvcResult.response.contentAsString)
+    }
+
+    @Test
+    fun `cannot create user without a password`() {
+        val teamJsonBody = """{"userName" : "user1"}"""
+
+        mockMvc.perform(post("/api/user")
+                .contentType(APPLICATION_JSON)
+                .content(teamJsonBody)).andExpect(status()
+                .reason(containsString("Password must be 8 characters or longer.")))
+                .andExpect(status().isBadRequest())
+    }
+
+    @Test
+    fun `cannot create team with duplicate username`() {
+        val teamJsonBody = """{ "userName" : "BeachBums", "password" : "$VALID_PASSWORD"}"""
+        val duplicateTeamJsonBody = """{ "userName" : "BeachBums", "password" : "$VALID_PASSWORD"}"""
+
+        mockMvc.perform(post("/api/user")
+                .contentType(APPLICATION_JSON)
+                .content(teamJsonBody))
+
+        mockMvc.perform(post("/api/user")
+                .contentType(APPLICATION_JSON)
+                .content(duplicateTeamJsonBody))
+                .andExpect(content().string(containsString("This username has been taken. Please try another one.")))
+                .andExpect(status().isBadRequest())
     }
 }

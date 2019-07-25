@@ -60,7 +60,7 @@ class UserControllerTest {
         `when`(mockUserService.createUser(any())).thenReturn(savedUser)
         `when`(mockJwtBuilder.buildJwt("username")).thenReturn(expectedJwt)
 
-        val responseEntity: ResponseEntity<String> = controller.createUser(createUserRequest)
+        val responseEntity: ResponseEntity<String?> = controller.createUser(createUserRequest)
 
         assertEquals(expectedJwt, responseEntity.body)
     }

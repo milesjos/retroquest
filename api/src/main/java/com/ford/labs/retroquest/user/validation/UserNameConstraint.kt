@@ -15,12 +15,18 @@
  * limitations under the License.
  */
 
-package com.ford.labs.retroquest.user
+package com.ford.labs.retroquest.user.validation
 
-import org.springframework.data.jpa.repository.JpaRepository
-import org.springframework.stereotype.Repository
+import javax.validation.Constraint
+import javax.validation.Payload
+import kotlin.reflect.KClass
 
-@Repository
-interface UserRepository : JpaRepository<User, Long> {
-    fun findByUserName(userName: String): User?
-}
+@MustBeDocumented
+@Constraint(validatedBy = [UserNameValidator::class])
+@Target(AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY_GETTER, AnnotationTarget.PROPERTY_SETTER, AnnotationTarget.FIELD)
+@Retention(AnnotationRetention.RUNTIME)
+annotation class UserNameConstraint(
+        val message: String = "Invalid UserName",
+        val groups: Array<KClass<*>> = [],
+        val payload: Array<KClass<out Payload>> = []
+)
